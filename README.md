@@ -63,6 +63,7 @@ Options:
   --transfers         Also show plain token transfers in and out
   --webhook <url>     Post each new trade to a Discord webhook
   --json              One JSON object per line
+  --version           Show version
   --help              Show this help
 
 Environment:

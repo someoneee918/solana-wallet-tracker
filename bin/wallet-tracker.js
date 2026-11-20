@@ -18,6 +18,7 @@ Options:
   --transfers         Also show plain token transfers in and out
   --webhook <url>     Post each new trade to a Discord webhook
   --json              One JSON object per line
+  --version           Show version
   --help              Show this help
 
 Environment:
@@ -38,8 +39,13 @@ function readWallets(args) {
 }
 
 main(async () => {
-  const args = parseArgs(process.argv.slice(2), { booleans: ["once", "json", "help", "transfers"] });
+  const args = parseArgs(process.argv.slice(2), { booleans: ["once", "json", "help", "transfers", "version"] });
   if (args.help) { console.log(HELP); return; }
+  if (args.version) {
+    const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+    console.log(`${pkg.name} ${pkg.version}`);
+    return;
+  }
   const wallets = readWallets(args);
   if (!wallets.size) { console.log(HELP); process.exit(1); }
   const history = args.history !== undefined ? Math.max(0, Math.min(20, Number(args.history))) : 5;
