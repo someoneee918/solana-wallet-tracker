@@ -56,7 +56,7 @@ Usage:
 
 Options:
   --file <path>       Text file with one wallet per line, optionally followed by a label
-  --history <n>       Recent trades to show per wallet at start (default 5, 0 for none)
+  --history <n>       Recent trades to show per wallet at start (default 5, 0 for none, max 20)
   --once              Show the history and exit, without watching
   --interval <sec>    Seconds between checks (default 20, minimum 10)
   --min-sol <n>       Hide trades smaller than this many SOL

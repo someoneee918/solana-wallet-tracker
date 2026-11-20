@@ -11,7 +11,7 @@ Usage:
 
 Options:
   --file <path>       Text file with one wallet per line, optionally followed by a label
-  --history <n>       Recent trades to show per wallet at start (default 5, 0 for none)
+  --history <n>       Recent trades to show per wallet at start (default 5, 0 for none, max 20)
   --once              Show the history and exit, without watching
   --interval <sec>    Seconds between checks (default 20, minimum 10)
   --min-sol <n>       Hide trades smaller than this many SOL
@@ -37,14 +37,30 @@ function readWallets(args) {
   return wallets;
 }
 
+export function numberFlag(args, name, { min = -Infinity, max = Infinity, fallback = undefined } = {}) {
+  const val = args[name];
+  if (val === undefined) return fallback;
+  if (typeof val === "boolean" || typeof val === "object" || val === null) {
+    const range = min !== -Infinity && max !== Infinity ? ` from ${min} to ${max}` : min !== -Infinity ? ` of ${min} or more` : ` of ${max} or less`;
+    throw new Error(`--${name} must be a number${range}`);
+  }
+  const str = String(val).trim();
+  const n = Number(str);
+  if (str === "" || isNaN(n) || n < min || n > max) {
+    const range = min !== -Infinity && max !== Infinity ? ` from ${min} to ${max}` : min !== -Infinity ? ` of ${min} or more` : ` of ${max} or less`;
+    throw new Error(`--${name} must be a number${range}`);
+  }
+  return n;
+}
+
 main(async () => {
   const args = parseArgs(process.argv.slice(2), { booleans: ["once", "json", "help", "transfers"] });
   if (args.help) { console.log(HELP); return; }
   const wallets = readWallets(args);
   if (!wallets.size) { console.log(HELP); process.exit(1); }
-  const history = args.history !== undefined ? Math.max(0, Math.min(20, Number(args.history))) : 5;
-  const interval = Math.max(10, Number(args.interval) || 20) * 1000;
-  const minSol = Number(args["min-sol"]) || 0;
+  const history = numberFlag(args, "history", { min: 0, max: 20, fallback: 5 });
+  const interval = numberFlag(args, "interval", { min: 10, fallback: 20 }) * 1000;
+  const minSol = numberFlag(args, "min-sol", { min: 0, fallback: 0 });
   const webhook = typeof args.webhook === "string" ? args.webhook : null;
   const nameOf = (w) => wallets.get(w) || short(w);
 
